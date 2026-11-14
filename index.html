@@ -160,6 +160,23 @@ function enviar(cuerpo){
   // text/plain evita la consulta previa CORS, que Apps Script no responde.
   return conLimite(fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(cuerpo)}).then(function(r){ return r.json(); }), 30000);
 }
+function esperar(ms){ return new Promise(function(ok){ setTimeout(ok, ms); }); }
+// Con muchas personas a la vez Google rechaza algunas llamadas. Reintentar es seguro:
+// el servidor cuenta la ultima respuesta de cada dispositivo, asi que no se duplica.
+function conReintentos(hacer, intentos){
+  var n = 0;
+  function probar(){
+    n++;
+    return hacer().then(function(r){
+      if (r && r.ok === false && r.error === 'interno' && n < intentos) return esperar(800 * n + Math.random() * 2500).then(probar);
+      return r;
+    }, function(e){
+      if (n < intentos) return esperar(800 * n + Math.random() * 2500).then(probar);
+      throw e;
+    });
+  }
+  return probar();
+}
 function guardar(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 function leer(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
 function dispositivo(){
@@ -185,7 +202,7 @@ function enlace(vista, id){
 function vistaResponder(){
   if (leer('ch-enc-enviada-' + E)) return gracias();
   mensaje('Cargando…');
-  pedir({a:'encuesta', e:E}).then(function(r){
+  conReintentos(function(){ return pedir({a:'encuesta', e:E}); }, 4).then(function(r){
     if (!r.ok) return mensaje('No encontramos esta encuesta', 'Revisa el código QR o pide el enlace de nuevo.');
     if (!r.encuesta.abierta) return mensaje('Esta encuesta está cerrada', 'Gracias por tu interés.');
     if (!r.encuesta.preguntas.length) return mensaje('La encuesta aún no tiene preguntas');
@@ -254,7 +271,8 @@ function formulario(enc){
     var n = Object.keys(resp).length;
     if (!n){ aviso.textContent = 'Responde al menos una pregunta antes de enviar.'; return; }
     aviso.textContent = ''; boton.disabled = true; boton.textContent = 'Enviando…';
-    enviar({e:enc.id, d:dispositivo(), r:resp}).then(function(r){
+    var cuerpo = {e:enc.id, d:dispositivo(), r:resp};
+    conReintentos(function(){ return enviar(cuerpo); }, 6).then(function(r){
       if (r.ok){ guardar('ch-enc-enviada-' + enc.id, '1'); gracias(); window.scrollTo(0, 0); return; }
       if (r.error === 'cerrada') return mensaje('Esta encuesta ya se cerró', 'Tu respuesta no llegó a registrarse.');
       throw new Error(r.error);
