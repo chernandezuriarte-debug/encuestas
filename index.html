@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Encuesta · Carlos Hernández</title>
+<link rel="icon" href="ch.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --marfil:#F8F6F1; --papel:#FFFFFF; --navy:#08233F; --turquesa:#3C9FA5; --turquesa-osc:#2C7F85;
+  --dorado:#C9A45D; --gris:#6F7F8F; --linea:#E4DFD3; --suave:#EEF4F3; --error:#A3402F;
+  --serif:"Playfair Display",Georgia,"Times New Roman",serif;
+  --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--marfil);color:var(--navy);font-family:var(--sans);font-size:17px;line-height:1.5;min-height:100vh;min-height:100dvh}
+h1,h2{font-family:var(--serif);font-weight:600;line-height:1.2;margin:0;text-wrap:balance}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--dorado);outline-offset:2px}
+.oculto{display:none!important}
+
+/* ---------- cabecera comun ---------- */
+.marca{display:flex;align-items:center;gap:12px}
+.marca img{height:34px;width:auto;display:block}
+.marca span{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);font-weight:500}
+
+/* ---------- responder (celular) ---------- */
+.hoja{max-width:620px;margin:0 auto;padding:20px 16px 48px}
+.hoja header{padding:6px 0 22px;border-bottom:1px solid var(--linea);margin-bottom:22px}
+.hoja h1{font-size:28px;margin-top:18px}
+.nota{color:var(--gris);font-size:14.5px;margin:8px 0 0}
+.tarjeta{background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:20px 18px;margin-bottom:16px}
+.tarjeta .num{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--turquesa-osc);font-weight:600}
+.tarjeta h2{font-size:21px;margin:6px 0 16px}
+.opciones{display:grid;gap:10px}
+.op{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--papel);border:1.5px solid var(--linea);border-radius:10px;padding:13px 14px;min-height:50px;transition:border-color .15s,background .15s}
+.op .marca-op{flex:none;width:20px;height:20px;border:1.5px solid var(--gris);border-radius:50%;display:grid;place-items:center}
+.op.varias .marca-op{border-radius:5px}
+.op[aria-checked="true"]{border-color:var(--turquesa);background:var(--suave)}
+.op[aria-checked="true"] .marca-op{border-color:var(--turquesa);background:var(--turquesa)}
+.op[aria-checked="true"] .marca-op::after{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
+.escala{display:flex;gap:8px}
+.escala button{flex:1;min-width:0;height:50px;border:1.5px solid var(--linea);background:var(--papel);border-radius:10px;font-weight:600;font-size:17px;padding:0}
+.escala button[aria-checked="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.extremos{display:flex;justify-content:space-between;gap:12px;color:var(--gris);font-size:13.5px;margin-top:8px}
+textarea,input[type=text]{width:100%;border:1.5px solid var(--linea);border-radius:10px;padding:13px 14px;background:var(--papel);font-size:17px}
+textarea{min-height:110px;resize:vertical}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--turquesa)}
+.cuenta{text-align:right;color:var(--gris);font-size:12.5px;margin-top:4px}
+.boton{display:block;width:100%;border:0;border-radius:12px;background:var(--navy);color:#fff;font-weight:600;font-size:18px;padding:16px;margin-top:8px}
+.boton:disabled{opacity:.45;cursor:default}
+.aviso{color:var(--error);font-size:15px;margin:12px 0 0;min-height:1.4em}
+.centro{text-align:center;padding:56px 8px}
+.centro img{height:64px;margin-bottom:26px}
+.centro h1{font-size:30px}
+.centro p{color:var(--gris);max-width:34ch;margin:14px auto 0}
+.filete{width:56px;height:2px;background:var(--dorado);margin:22px auto 0;border:0}
+
+/* ---------- panel ---------- */
+.lista{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.lista li{background:var(--papel);border:1px solid var(--linea);border-radius:14px;padding:16px 18px}
+.lista strong{font-family:var(--serif);font-size:20px;font-weight:600}
+.estado{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--turquesa-osc);margin-left:8px}
+.estado.cerrada{color:var(--gris)}
+.enlaces{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.enlaces a{color:var(--navy);font-weight:600;font-size:15px;text-decoration:none;border:1.5px solid var(--navy);border-radius:999px;padding:8px 16px}
+.enlaces a.principal{background:var(--navy);color:#fff}
+
+/* ---------- pantalla (proyector) ---------- */
+body.pantalla{overflow:hidden}
+.escena{display:grid;grid-template-columns:minmax(260px,26vw) 1fr;height:100vh;height:100dvh}
+.lado{background:var(--navy);color:#fff;padding:3.2vh 2.2vw;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2vh}
+.lado .ch{background:var(--marfil);border-radius:12px;padding:10px 16px}
+.lado .ch img{height:4.6vh;min-height:30px;display:block}
+.lado h2{font-size:clamp(20px,2.3vw,38px);margin-top:1vh}
+.qr{background:#fff;border-radius:14px;padding:12px;width:100%;max-width:38vh;aspect-ratio:1}
+.qr svg{display:block;width:100%;height:100%}
+.url{font-size:clamp(11px,.95vw,16px);color:#C9D6E0;word-break:break-all}
+.contador{margin-top:auto}
+.contador b{display:block;font-family:var(--serif);font-size:clamp(46px,6.5vw,104px);line-height:1;color:var(--dorado);font-weight:600}
+.contador span{font-size:clamp(13px,1.1vw,19px);letter-spacing:.12em;text-transform:uppercase;color:#C9D6E0}
+.frente{padding:4vh 3.4vw 3vh;display:flex;flex-direction:column;min-width:0;min-height:0}
+.frente .arriba{display:flex;justify-content:space-between;align-items:baseline;gap:20px;color:var(--gris);font-size:clamp(13px,1.1vw,19px);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.frente h1{font-size:clamp(28px,3.5vw,62px);margin:1.6vh 0 3vh}
+.lienzo{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.barras{display:grid;gap:clamp(10px,2vh,24px)}
+.barra .rotulo{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-size:clamp(17px,1.9vw,32px);font-weight:500}
+.barra .rotulo span:last-child{color:var(--gris);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:.8em}
+.barra .riel{height:clamp(12px,2.4vh,26px);background:#E9E4D8;border-radius:999px;margin-top:.8vh;overflow:hidden}
+.barra .relleno{height:100%;width:0;background:var(--turquesa);border-radius:999px;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.barra.lider .relleno{background:var(--navy)}
+.media{font-family:var(--serif);font-size:clamp(22px,2.4vw,42px);margin-bottom:2.4vh}
+.media b{color:var(--turquesa-osc);font-weight:600}
+.nube{display:flex;flex-wrap:wrap;gap:.6em 1.1em;align-items:center;justify-content:center;align-content:center;font-family:var(--serif);font-size:clamp(18px,2vw,34px);line-height:1.1;height:100%}
+.nube span{white-space:nowrap}
+.textos{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,22vw),1fr));gap:1.4vh 1.2vw;align-content:start;height:100%;overflow:hidden}
+.textos div{background:var(--papel);border:1px solid var(--linea);border-left:3px solid var(--dorado);border-radius:8px;padding:1.2vh 1vw;font-size:clamp(15px,1.35vw,24px);overflow-wrap:anywhere}
+.vacio{color:var(--gris);font-size:clamp(18px,1.8vw,30px);text-align:center}
+.pie{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:2vh;color:var(--gris);font-size:clamp(12px,1vw,16px)}
+.pie .nav{display:flex;gap:8px}
+.pie button{border:1.5px solid var(--linea);background:var(--papel);border-radius:999px;padding:8px 18px;font-weight:600}
+.pie button:disabled{opacity:.4;cursor:default}
+.sin-red{color:var(--error)}
+@media (max-width:760px){
+  body.pantalla{overflow:auto}
+  .escena{grid-template-columns:1fr;height:auto}
+  .lado{padding:20px 16px}
+  .qr{max-width:240px}
+  .frente{padding:20px 16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="config.js"></script>
+<script src="qrcode.js"></script>
+<script>
+(function(){
+'use strict';
+var API = (window.ENCUESTAS_API || '').trim();
+var qs = new URLSearchParams(location.search);
+var E = (qs.get('e') || '').trim().toLowerCase();
+var V = (qs.get('v') || '').trim().toLowerCase();
+var app = document.getElementById('app');
+
+/* ---------- utilidades ---------- */
+function el(tag, attrs){
+  var n = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function(k){
+    var v = attrs[k];
+    if (v == null || v === false) return;
+    if (k === 'text') n.textContent = v;
+    else if (k === 'class') n.className = v;
+    else if (k.slice(0,2) === 'on') n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  });
+  for (var i = 2; i < arguments.length; i++){
+    var c = arguments[i];
+    if (c == null || c === false) continue;
+    n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  return n;
+}
+function pintar(){ app.replaceChildren.apply(app, arguments); }
+function marca(){ return el('div', {class:'marca'}, el('img', {src:'ch.svg', alt:'CH'}), el('span', {text:'Carlos Hernández'})); }
+function conLimite(promesa, ms){
+  return Promise.race([promesa, new Promise(function(_, no){ setTimeout(function(){ no(new Error('tiempo')); }, ms); })]);
+}
+function pedir(params){
+  return conLimite(fetch(API + '?' + new URLSearchParams(params).toString(), {cache:'no-store'}).then(function(r){ return r.json(); }), 20000);
+}
+function enviar(cuerpo){
+  // text/plain evita la consulta previa CORS, que Apps Script no responde.
+  return conLimite(fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(cuerpo)}).then(function(r){ return r.json(); }), 30000);
+}
+function guardar(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+function leer(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function dispositivo(){
+  var d = leer('ch-enc-dispositivo');
+  if (!d || !/^[A-Za-z0-9-]{8,40}$/.test(d)){
+    d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'd-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+    guardar('ch-enc-dispositivo', d);
+  }
+  return d;
+}
+function mensaje(titulo, texto){
+  pintar(el('main', {class:'hoja'}, el('div', {class:'centro'},
+    el('img', {src:'ch.svg', alt:'CH'}), el('h1', {text:titulo}), texto ? el('p', {text:texto}) : null, el('hr', {class:'filete'}))));
+}
+function enlace(vista, id){
+  var u = new URL(location.href); u.search = '';
+  if (id) u.searchParams.set('e', id);
+  if (vista) u.searchParams.set('v', vista);
+  return u.toString();
+}
+
+/* ---------- vista: responder ---------- */
+function vistaResponder(){
+  if (leer('ch-enc-enviada-' + E)) return gracias();
+  mensaje('Cargando…');
+  pedir({a:'encuesta', e:E}).then(function(r){
+    if (!r.ok) return mensaje('No encontramos esta encuesta', 'Revisa el código QR o pide el enlace de nuevo.');
+    if (!r.encuesta.abierta) return mensaje('Esta encuesta está cerrada', 'Gracias por tu interés.');
+    if (!r.encuesta.preguntas.length) return mensaje('La encuesta aún no tiene preguntas');
+    formulario(r.encuesta);
+  }).catch(function(){ mensaje('No pudimos cargar la encuesta', 'Revisa tu conexión y vuelve a abrir el enlace.'); });
+}
+function gracias(){
+  mensaje('Gracias, tu respuesta ya cuenta', 'Mira la pantalla: los resultados se actualizan en vivo.');
+}
+function formulario(enc){
+  document.title = enc.titulo + ' · Carlos Hernández';
+  var resp = {};
+  var aviso = el('p', {class:'aviso', role:'alert'});
+  var boton = el('button', {class:'boton', type:'submit', text:'Enviar respuestas'});
+  var total = enc.preguntas.length;
+
+  function grupo(p, varias){
+    var cont = el('div', {class:'opciones', role: varias ? 'group' : 'radiogroup', 'aria-label':p.texto});
+    p.opciones.forEach(function(o){
+      var b = el('button', {type:'button', class:'op' + (varias ? ' varias' : ''), role: varias ? 'checkbox' : 'radio', 'aria-checked':'false',
+        onclick:function(){
+          if (varias){
+            var act = b.getAttribute('aria-checked') === 'true';
+            b.setAttribute('aria-checked', act ? 'false' : 'true');
+            var lista = (resp[p.id] || []).filter(function(x){ return x !== o; });
+            if (!act) lista.push(o);
+            if (lista.length) resp[p.id] = lista; else delete resp[p.id];
+          } else {
+            Array.prototype.forEach.call(cont.children, function(x){ x.setAttribute('aria-checked', 'false'); });
+            b.setAttribute('aria-checked', 'true');
+            resp[p.id] = o;
+          }
+        }}, el('span', {class:'marca-op'}), el('span', {text:o}));
+      cont.appendChild(b);
+    });
+    return cont;
+  }
+  function escala(p){
+    var fila = el('div', {class:'escala', role:'radiogroup', 'aria-label':p.texto});
+    for (var n = p.min; n <= p.max; n++) (function(n){
+      var b = el('button', {type:'button', role:'radio', 'aria-checked':'false', text:String(n), onclick:function(){
+        Array.prototype.forEach.call(fila.children, function(x){ x.setAttribute('aria-checked', 'false'); });
+        b.setAttribute('aria-checked', 'true'); resp[p.id] = n;
+      }});
+      fila.appendChild(b);
+    })(n);
+    var ext = (p.etiquetaMin || p.etiquetaMax) ? el('div', {class:'extremos'}, el('span', {text:p.etiquetaMin}), el('span', {text:p.etiquetaMax})) : null;
+    return el('div', null, fila, ext);
+  }
+  function libre(p){
+    var max = p.tipo === 'nube' ? 40 : 200;
+    var cuenta = el('div', {class:'cuenta', text:'0 / ' + max});
+    var campo = p.tipo === 'nube'
+      ? el('input', {type:'text', maxlength:max, placeholder:'Una palabra o frase corta', 'aria-label':p.texto, autocomplete:'off'})
+      : el('textarea', {maxlength:max, placeholder:'Escribe aquí', 'aria-label':p.texto});
+    campo.addEventListener('input', function(){
+      var t = campo.value.trim();
+      cuenta.textContent = campo.value.length + ' / ' + max;
+      if (t) resp[p.id] = t; else delete resp[p.id];
+    });
+    return el('div', null, campo, cuenta);
+  }
+
+  var form = el('form', {novalidate:'', onsubmit:function(ev){
+    ev.preventDefault();
+    var n = Object.keys(resp).length;
+    if (!n){ aviso.textContent = 'Responde al menos una pregunta antes de enviar.'; return; }
+    aviso.textContent = ''; boton.disabled = true; boton.textContent = 'Enviando…';
+    enviar({e:enc.id, d:dispositivo(), r:resp}).then(function(r){
+      if (r.ok){ guardar('ch-enc-enviada-' + enc.id, '1'); gracias(); window.scrollTo(0, 0); return; }
+      if (r.error === 'cerrada') return mensaje('Esta encuesta ya se cerró', 'Tu respuesta no llegó a registrarse.');
+      throw new Error(r.error);
+    }).catch(function(){
+      boton.disabled = false; boton.textContent = 'Enviar respuestas';
+      aviso.textContent = 'No se pudo enviar. Revisa tu conexión e inténtalo otra vez.';
+    });
+  }});
+  enc.preguntas.forEach(function(p, i){
+    var cuerpo = p.tipo === 'opcion' ? grupo(p, false) : p.tipo === 'multiple' ? grupo(p, true) : p.tipo === 'escala' ? escala(p) : libre(p);
+    form.appendChild(el('section', {class:'tarjeta'},
+      el('div', {class:'num', text:'Pregunta ' + (i + 1) + ' de ' + total}), el('h2', {text:p.texto}), cuerpo));
+  });
+  form.appendChild(boton); form.appendChild(aviso);
+  pintar(el('main', {class:'hoja'},
+    el('header', null, marca(), el('h1', {text:enc.titulo}),
+      el('p', {class:'nota', text:'Es anónima: no pedimos tu nombre ni tu correo.'})),
+    form));
+}
+
+/* ---------- vista: pantalla (proyector) ---------- */
+function vistaPantalla(){
+  document.body.classList.add('pantalla');
+  var idx = 0, datos = null, armada = -1, refs = null;
+  var urlResp = enlace('', E);
+  var cajaQr = el('div', {class:'qr', role:'img', 'aria-label':'Código QR para responder'});
+  try { var q = qrcode(0, 'M'); q.addData(urlResp); q.make(); cajaQr.innerHTML = q.createSvgTag({cellSize:8, margin:0, scalable:true}); } catch(e){}
+  var nPart = el('b', {text:'0'});
+  var etiqPart = el('span', {text:'respuestas'});
+  var titulo = el('h2', {text:''});
+  var pos = el('span'), estado = el('span'), h1 = el('h1'), lienzo = el('div', {class:'lienzo'});
+  var red = el('span');
+  var bAnt = el('button', {type:'button', text:'← Anterior', onclick:function(){ mover(-1); }});
+  var bSig = el('button', {type:'button', text:'Siguiente →', onclick:function(){ mover(1); }});
+  pintar(el('div', {class:'escena'},
+    el('aside', {class:'lado'},
+      el('div', {class:'ch'}, el('img', {src:'ch.svg', alt:'CH'})),
+      titulo, el('div', {text:'Escanea y responde'}), cajaQr, el('div', {class:'url', text:urlResp.replace(/^https?:\/\//, '')}),
+      el('div', {class:'contador'}, nPart, etiqPart)),
+    el('main', {class:'frente'},
+      el('div', {class:'arriba'}, pos, estado), h1, lienzo,
+      el('div', {class:'pie'}, red, el('div', {class:'nav'}, bAnt, bSig)))));
+
+  function mover(d){
+    if (!datos) return;
+    var n = Math.max(0, Math.min(datos.preguntas.length - 1, idx + d));
+    if (n !== idx){ idx = n; dibujar(); }
+  }
+  document.addEventListener('keydown', function(ev){
+    if (ev.key === 'ArrowRight' || ev.key === 'PageDown' || ev.key === ' ') { ev.preventDefault(); mover(1); }
+    if (ev.key === 'ArrowLeft' || ev.key === 'PageUp') { ev.preventDefault(); mover(-1); }
+  });
+
+  function dibujar(){
+    var ps = datos.preguntas;
+    titulo.textContent = datos.titulo;
+    nPart.textContent = String(datos.participantes);
+    etiqPart.textContent = datos.participantes === 1 ? 'persona respondió' : 'personas respondieron';
+    if (!ps.length){ h1.textContent = 'La encuesta aún no tiene preguntas'; lienzo.replaceChildren(); return; }
+    if (idx > ps.length - 1) idx = ps.length - 1;
+    var p = ps[idx];
+    pos.textContent = 'Pregunta ' + (idx + 1) + ' de ' + ps.length;
+    estado.textContent = (datos.abierta ? 'Abierta' : 'Cerrada') + ' · ' + p.total + (p.total === 1 ? ' respuesta' : ' respuestas');
+    h1.textContent = p.texto;
+    bAnt.disabled = idx === 0; bSig.disabled = idx === ps.length - 1;
+
+    if (p.conteos){
+      var firma = idx + '|' + p.opciones.join('\u0001');
+      if (armada !== firma){
+        refs = p.opciones.map(function(o){
+          var relleno = el('div', {class:'relleno'}), cifra = el('span');
+          var fila = el('div', {class:'barra'}, el('div', {class:'rotulo'}, el('span', {text:o}), cifra), el('div', {class:'riel'}, relleno));
+          return {fila:fila, relleno:relleno, cifra:cifra};
+        });
+        var media = p.tipo === 'escala' ? el('div', {class:'media'}) : null;
+        var caja = el('div', {class:'barras'});
+        refs.forEach(function(r){ caja.appendChild(r.fila); });
+        lienzo.replaceChildren.apply(lienzo, media ? [media, caja] : [caja]);
+        refs.media = media; armada = firma;
+        void caja.offsetWidth; // para que la primera barra anime desde cero
+      }
+      var max = Math.max.apply(null, p.conteos);
+      p.conteos.forEach(function(c, i){
+        var pct = p.total ? Math.round(c * 100 / p.total) : 0;
+        refs[i].relleno.style.width = pct + '%';
+        refs[i].cifra.textContent = pct + ' %  ·  ' + c;
+        refs[i].fila.classList.toggle('lider', p.tipo !== 'escala' && c > 0 && c === max);
+      });
+      if (refs.media){
+        refs.media.replaceChildren();
+        if (p.media != null){
+          refs.media.appendChild(document.createTextNode('Promedio '));
+          refs.media.appendChild(el('b', {text:String(p.media).replace('.', ',')}));
+          refs.media.appendChild(document.createTextNode(' de ' + p.opciones[p.opciones.length - 1]));
+        }
+      }
+      return;
+    }
+    armada = -1;
+    if (!p.textos.length){ lienzo.replaceChildren(el('div', {class:'vacio', text:'Esperando las primeras respuestas…'})); return; }
+    if (p.tipo === 'nube'){
+      var cuenta = {}, forma = {};
+      p.textos.forEach(function(t){ var k = t.toLowerCase(); cuenta[k] = (cuenta[k] || 0) + 1; if (!forma[k]) forma[k] = t; });
+      var claves = Object.keys(cuenta).sort(function(a, b){ return cuenta[b] - cuenta[a] || a.localeCompare(b, 'es'); }).slice(0, 40);
+      var tope = cuenta[claves[0]];
+      var colores = ['var(--navy)', 'var(--turquesa-osc)', 'var(--gris)'];
+      var nube = el('div', {class:'nube'});
+      claves.forEach(function(k, i){
+        var esc = tope > 1 ? 1 + 1.8 * (cuenta[k] - 1) / (tope - 1) : 1.3;
+        var s = el('span', {text:forma[k]});
+        s.style.fontSize = esc.toFixed(2) + 'em';
+        s.style.color = cuenta[k] === tope && tope > 1 ? 'var(--navy)' : colores[i % colores.length];
+        s.style.fontWeight = cuenta[k] === tope && tope > 1 ? '600' : '500';
+        nube.appendChild(s);
+      });
+      lienzo.replaceChildren(nube);
+    } else {
+      var caja2 = el('div', {class:'textos'});
+      p.textos.slice().reverse().slice(0, 30).forEach(function(t){ caja2.appendChild(el('div', {text:t})); });
+      lienzo.replaceChildren(caja2);
+    }
+  }
+
+  function ciclo(){
+    pedir({a:'resultados', e:E}).then(function(r){
+      if (!r.ok){
+        if (!datos) mensaje('No encontramos esta encuesta', 'Revisa el identificador en la hoja «Encuestas».');
+        return r.error === 'no-existe' && !datos ? 'alto' : null;
+      }
+      datos = r; red.textContent = ''; red.className = '';
+      dibujar();
+    }).catch(function(){
+      red.textContent = 'Sin conexión, reintentando…'; red.className = 'sin-red';
+    }).then(function(fin){ if (fin !== 'alto') setTimeout(ciclo, document.hidden ? 8000 : 3000); });
+  }
+  ciclo();
+}
+
+/* ---------- vista: panel ---------- */
+function vistaPanel(){
+  mensaje('Cargando…');
+  pedir({a:'lista'}).then(function(r){
+    if (!r.ok) throw new Error(r.error);
+    var lista = el('ul', {class:'lista'});
+    r.encuestas.forEach(function(x){
+      lista.appendChild(el('li', null,
+        el('strong', {text:x.titulo || x.id}),
+        el('span', {class:'estado' + (x.abierta ? '' : ' cerrada'), text:x.abierta ? 'Abierta' : 'Cerrada'}),
+        el('div', {class:'enlaces'},
+          el('a', {class:'principal', href:enlace('pantalla', x.id), text:'Proyectar resultados'}),
+          el('a', {href:enlace('', x.id), text:'Abrir para responder'}))));
+    });
+    pintar(el('main', {class:'hoja'},
+      el('header', null, marca(), el('h1', {text:'Mis encuestas'}),
+        el('p', {class:'nota', text:'Las preguntas se editan en la hoja de Google. Aquí solo se abren.'})),
+      r.encuestas.length ? lista : el('p', {class:'nota', text:'Aún no hay encuestas en la hoja.'})));
+  }).catch(function(){ mensaje('No pudimos cargar el panel', 'Revisa tu conexión.'); });
+}
+
+/* ---------- arranque ---------- */
+if (!API) mensaje('Falta conectar la hoja de Google', 'Pega la dirección de la aplicación web en config.js.');
+else if (V === 'panel') vistaPanel();
+else if (!E) mensaje('Encuestas en vivo', 'Escanea el código QR que aparece en la pantalla del taller para participar.');
+else if (V === 'pantalla') vistaPantalla();
+else vistaResponder();
+})();
+</script>
+</body>
+</html>
